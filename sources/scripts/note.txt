@@ -1,0 +1,24 @@
+Dans ce qui suit, un draft (brouillon) des taches que je n'ai pas encore traiter, 
+mais ca rest encore dans l'etape d'integration :
+
+1/ gerer les 'exceptions: 
+    - exceptions fonctionnelles (
+        - signatures des methodes, fcts ... etc
+        - respect des variables
+        - 
+    - exceptions fictifes
+        - list out of range
+        - ValueError: n_samples=1 while HDBSCAN requires more than one sample
+        - Tesseract: picture rather than a plain text
+        - list out of range
+
+2/ gerer les I/O
+    - sauvegarde de fichiers (temporels, et de sorties)
+    - sauvegarde des checkpoints
+    - ...etc
+
+3/ taches a resoudre:
+    - faudra faire de la programmation modulaire.
+    - Les images en "Noires&Blanc" ne peuvent etres parsees
+    - kernel_size a adjuster (a baiser au dessus de 19 et essayer)
+    - Ca marche tres bien sur le blanc, mais ca ne fonctionne pas bien sur un fond en couleur (non-blanc)
