@@ -10,16 +10,6 @@ The `documentation` directory contains detailed explanations of the project's st
 - **sources**: 
 The `sources` directory contains the raw materials and data utilized throughout the project. This includes images, templates, and any other assets that are essential for testing, processing, and validating the functionality of the implemented algorithms. Treated as a practical part of the project, this directory, serves as a central repository for the inputs required by various modules and their relative outcomes, helping ensure consistency and ease of access for future modifications or expansions.
 
-# Key Features
-
-- **Text Detection and Extraction**: Detects important text regions in an image using edge detection, bounding boxes, and clustering algorithms. These regions are then passed through an OCR engine to extract the textual content.
-
-- **Efficient Image Processing**: The combination of Canny edge detection, contour extraction, and line attachment helps ensure that all significant parts of the image are detected and processed accurately.
-
-- **Customizable**: Parameters such as the margin for bounding boxes, maximum area for filtering, and clustering epsilon values can be adjusted to improve detection based on specific document structures.
-
-- **Extensible Architecture**: The modular design allows users to extend or modify the existing methods for additional functionality, such as adapting to different document formats or integrating with other OCR systems.
-
 _Khouri A. Ouadoud - k.abd_elouadoud@univ-boumerdes.dz_
 
 **DISCLAIMER**
