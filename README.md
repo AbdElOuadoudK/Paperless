@@ -12,14 +12,12 @@ The `sources` directory contains the raw materials and data utilized throughout 
 
 _Khouri A. Ouadoud - k.abd_elouadoud@univ-boumerdes.dz_
 
-**DISCLAIMER**
+</br>
 
-This repository represents an early version of the project `_Paperless_`. It may consist of several modules related to the overall application, including (but not limited to) the applicant tracking system (ATS). These modules and their corresponding sub-modules are under continuous development. Consequently, some sections or components may undergo significant changes over time, such as being altered, replaced, or added, which may introduce bugs or inconsistencies during the development phase.
+<p align='center'><strong>DISCLAIMER</strong></p>
 
-The readers are expected to be mindful of potential challenges in this stage. Specifically, the normal behaviour of the workflow is exposed to some programming issues. There might be logical, syntax, or runtime errors due to the complexity of handling certain aspects of the system, where the needed process can fail. If any issues is encountered, please understand the ongoing nature of the development and the associated flexibility.
-
-Your feedback and reports on bugs are highly appreciated to improve the project further.
+<p align='justify'>This repository represents an early version of the project <em>`Paperless`</em>. It may consist of several modules related to the overall application, including (but not limited to) the applicant tracking system (ATS). These modules and their corresponding sub-modules are under continuous development. Consequently, some sections or components may undergo significant changes over time, such as being altered, replaced, or added, which may introduce bugs or inconsistencies during the development phase. The readers are expected to be mindful of potential challenges in this stage. Specifically, the normal behaviour of the workflow is exposed to some programming issues. There might be logical, syntax, or runtime errors due to the complexity of handling certain aspects of the system, where the needed process can fail. If any issues is encountered, please understand the ongoing nature of the development and the associated flexibility. If in any cirmuctances, you want to get a copy of the experiment into a particular plateform, please make sure to contact the <strong>authors</strong> of the project for further authority.</p>
 
 
-
-**NOTE -** If in any cirmuctances, you want to get a copy of the experiment into a particular plateform, please make sure to contact the **authors** of the project for further authority.
+<em><strong>NOTE -</strong> Your feedback and reports on bugs are highly appreciated to improve the project further.</em>
+<p align='right'><em>Paperless Team.</em></p>
