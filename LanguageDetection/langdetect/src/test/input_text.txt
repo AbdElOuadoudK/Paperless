@@ -1,9 +1,0 @@
-Hello, how are you? I hope you're having a wonderful day! The weather is beautiful today.
-Bonjour! Comment allez-vous? J'espère que vous passez une excellente journée! Le temps est magnifique aujourd'hui.
-مرحباً! كيف حالك؟ أتمنى أن يكون يومك رائعاً! الطقس جميل اليوم.
-The quick brown fox jumps over the lazy dog.
-Le renard brun rapide saute par-dessus le chien paresseux.
-الثعلب البني السريع يقفز فوق الكلب الكسول.
-I love programming and learning new languages!
-J'adore la programmation et l'apprentissage de nouvelles langues!
-أحب البرمجة وتعلم لغات جديدة!
