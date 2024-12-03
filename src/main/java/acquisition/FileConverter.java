@@ -1,6 +1,8 @@
 package acquisition;
 
 import utils.FileConversionException;
+import utils.UnsupportedFileFormatException;
+import utils.ImageReadException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.slf4j.Logger;
@@ -32,34 +34,39 @@ public class FileConverter {
                 .anyMatch(ext -> fileName.toLowerCase().endsWith("." + ext))) {
             logger.info("Image file detected, loading directly...");
             try {
-                List<BufferedImage> images = new ArrayList<>();
-                BufferedImage image = null;
-                try {
-                    image = ImageIO.read(new FileInputStream(file));
-                } catch (Exception e) {
-                    logger.warn("First attempt failed, trying alternate method...");
-                    try (InputStream is = new FileInputStream(file)) {
-                        byte[] bytes = is.readAllBytes();
-                        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
-                            image = ImageIO.read(bis);
-                        }
-                    }
-                }
-
-                if (image == null) {
-                    throw new FileConversionException("Failed to read image file: " + fileName + 
-                        ". Supported formats are: " + String.join(", ", ImageIO.getReaderFormatNames()));
-                }
-                images.add(image);
-                return images;
-            } catch (Exception e) {
-                throw new FileConversionException("Failed to convert image: " + e.getMessage() + 
-                    "\nFile path: " + file.getAbsolutePath(), e);
+                return loadImage(file);
+            } catch (ImageReadException e) {
+                throw new FileConversionException("Failed to read image file: " + e.getMessage(), e);
             }
         } else {
             logger.error("Unsupported file format detected: {}", fileName);
-            throw new UnsupportedOperationException("Unsupported file format: " + fileName);
+            throw new UnsupportedFileFormatException("Unsupported file format: " + fileName);
         }
+    }
+
+    private List<BufferedImage> loadImage(File file) throws ImageReadException {
+        List<BufferedImage> images = new ArrayList<>();
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(new FileInputStream(file));
+        } catch (Exception e) {
+            logger.warn("First attempt failed, trying alternate method...");
+            try (InputStream is = new FileInputStream(file)) {
+                byte[] bytes = is.readAllBytes();
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
+                    image = ImageIO.read(bis);
+                }
+            } catch (Exception ex) {
+                throw new ImageReadException("Failed to read image using alternate method: " + ex.getMessage(), ex);
+            }
+        }
+
+        if (image == null) {
+            throw new ImageReadException("Failed to read image file: " + file.getName() +
+                    ". Supported formats are: " + String.join(", ", ImageIO.getReaderFormatNames()));
+        }
+        images.add(image);
+        return images;
     }
 
     private List<BufferedImage> splitPagesIntoImages(PDDocument document) throws Exception {
