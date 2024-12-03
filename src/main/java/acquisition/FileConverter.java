@@ -3,6 +3,8 @@ package acquisition;
 import utils.FileConversionException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,13 +15,14 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class FileConverter {
+    private static final Logger logger = LoggerFactory.getLogger(FileConverter.class);
+
     public List<BufferedImage> convertToImage(File file) throws Exception {
         String fileName = file.getName().toLowerCase();
 
         if (fileName.endsWith(".pdf")) {
-            System.out.println("PDF file detected, attempting conversion...");
+            logger.info("PDF file detected, attempting conversion...");
             try (PDDocument document = PDDocument.load(file)) {
                 return splitPagesIntoImages(document);
             } catch (Exception e) {
@@ -27,14 +30,14 @@ public class FileConverter {
             }
         } else if (FileHandler.SUPPORTED_EXTENSIONS.stream()
                 .anyMatch(ext -> fileName.toLowerCase().endsWith("." + ext))) {
-            System.out.println("Image file detected, loading directly...");
+            logger.info("Image file detected, loading directly...");
             try {
                 List<BufferedImage> images = new ArrayList<>();
                 BufferedImage image = null;
                 try {
                     image = ImageIO.read(new FileInputStream(file));
                 } catch (Exception e) {
-                    System.out.println("First attempt failed, trying alternate method...");
+                    logger.warn("First attempt failed, trying alternate method...");
                     try (InputStream is = new FileInputStream(file)) {
                         byte[] bytes = is.readAllBytes();
                         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
@@ -42,7 +45,7 @@ public class FileConverter {
                         }
                     }
                 }
-                
+
                 if (image == null) {
                     throw new FileConversionException("Failed to read image file: " + fileName + 
                         ". Supported formats are: " + String.join(", ", ImageIO.getReaderFormatNames()));
@@ -54,13 +57,13 @@ public class FileConverter {
                     "\nFile path: " + file.getAbsolutePath(), e);
             }
         } else {
-            System.out.println("Unsupported file format detected: " + fileName);
+            logger.error("Unsupported file format detected: {}", fileName);
             throw new UnsupportedOperationException("Unsupported file format: " + fileName);
         }
     }
 
     private List<BufferedImage> splitPagesIntoImages(PDDocument document) throws Exception {
-        System.out.println("Starting PDF page splitting process...");
+        logger.info("Starting PDF page splitting process...");
         List<BufferedImage> images = new ArrayList<>();
         PDFRenderer pdfRenderer = new PDFRenderer(document);
 
