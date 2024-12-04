@@ -83,9 +83,9 @@ public class MainAcquisition {
             if (clutter && documentFile != null && documentFile.exists()) {
                 boolean deleted = documentFile.delete();
                 if (deleted) {
-                    logger.info("File deleted: {}", FileHandler.fileName);
+                    logger.info("File deleted: {}", FileHandler.fileName.get());
                 } else {
-                    logger.warn("Failed to delete temporary file: {}", FileHandler.fileName);
+                    logger.warn("Failed to delete temporary file: {}", FileHandler.fileName.get());
                 }
             }
         }
@@ -106,7 +106,7 @@ public class MainAcquisition {
             String fileName = "resume-x.pdf";
             CompletableFuture<List<BufferedImage>> futureImages = mainAcquisition.processDocument(DOCS_DIR + fileName, verbose, file_max_size, clutter, async);
             futureImages.thenAccept(processedImages -> {
-                mainAcquisition.fileHandler.saveImages(processedImages, basePath + FileHandler.fileNameNoX);
+                mainAcquisition.fileHandler.saveImages(processedImages, basePath + FileHandler.fileNameNoX.get());
             }).exceptionally(e -> {
                 logger.error("Error: {}", e.getMessage(), e);
                 return null;
