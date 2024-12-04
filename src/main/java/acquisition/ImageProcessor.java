@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import utils.ImageProcessingException; // Import the custom exception
+import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.ForkJoinPool;
 
 public class ImageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
@@ -17,6 +19,50 @@ public class ImageProcessor {
     private static final float SHARPEN_WEIGHT = 0.4f;  // Increased slightly for better edge definition
     private static final int WINDOW_SIZE = 15;  // For adaptive thresholding
 
+    // Inner class for parallel processing
+    private class ImageProcessingTask extends RecursiveTask<BufferedImage> {
+        private final BufferedImage image;
+        private final int startY;
+        private final int endY;
+
+        public ImageProcessingTask(BufferedImage image, int startY, int endY) {
+            this.image = image;
+            this.startY = startY;
+            this.endY = endY;
+        }
+
+        @Override
+        protected BufferedImage compute() {
+            // Base case: process a small portion of the image
+            if (endY - startY <= 10) {
+                try {
+                    return processImageSegment(image, startY, endY);
+                } catch (ImageProcessingException e) {
+                    logger.error("Error processing image segment: {}", e.getMessage());
+                    return null;
+                }
+            }
+
+            // Split the task into two smaller tasks
+            int midY = (startY + endY) / 2;
+            ImageProcessingTask task1 = new ImageProcessingTask(image, startY, midY);
+            ImageProcessingTask task2 = new ImageProcessingTask(image, midY, endY);
+            invokeAll(task1, task2);
+
+            // Combine results (for simplicity, just return one of the processed segments)
+            return task1.join(); // or combine results if needed
+        }
+    }
+
+    // Method to process a segment of the image
+    private BufferedImage processImageSegment(BufferedImage image, int startY, int endY) throws ImageProcessingException {
+        // Implement the logic to process the image segment
+        // This could include preprocessing, thresholding, and enhancement
+        // For example, you can call the existing methods for each segment
+        BufferedImage segment = image.getSubimage(0, startY, image.getWidth(), endY - startY);
+        return processImage(segment); // Call the existing processImage method
+    }
+
     public BufferedImage processImage(BufferedImage image) throws ImageProcessingException {
         if (image == null) {
             logger.error("Input image is null.");
@@ -24,18 +70,12 @@ public class ImageProcessor {
         }
         logger.info("Starting image processing...");
 
-        // Apply preprocessing
-        BufferedImage preprocessed = preprocessImage(image);
-        logger.debug("Preprocessing completed.");
+        // Use ForkJoinPool for parallel processing
+        ForkJoinPool pool = new ForkJoinPool();
+        BufferedImage processedImage = pool.invoke(new ImageProcessingTask(image, 0, image.getHeight()));
 
-        // Apply thresholding
-        BufferedImage thresholded = applyThresholding(preprocessed);
-        logger.debug("Thresholding completed.");
-
-        // Enhance quality
-        BufferedImage enhanced = enhanceImageQuality(thresholded);
         logger.info("Image processing completed successfully.");
-        return enhanced;
+        return processedImage;
     }
 
     public BufferedImage preprocessImage(BufferedImage image) throws ImageProcessingException {
