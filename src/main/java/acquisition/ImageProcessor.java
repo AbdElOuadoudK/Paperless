@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import utils.ImageProcessingException; // Import the custom exception
 
 public class ImageProcessor {
     // Constants for image processing
@@ -12,7 +13,11 @@ public class ImageProcessor {
     private static final float SHARPEN_WEIGHT = 0.4f;  // Increased slightly for better edge definition
     private static final int WINDOW_SIZE = 15;  // For adaptive thresholding
 
-    public BufferedImage processImage(BufferedImage image) {
+    public BufferedImage processImage(BufferedImage image) throws ImageProcessingException {
+        if (image == null) {
+            throw new ImageProcessingException("Input image cannot be null.");
+        }
+
         // Apply preprocessing
         BufferedImage preprocessed = preprocessImage(image);
 
@@ -23,8 +28,10 @@ public class ImageProcessor {
         return enhanceImageQuality(thresholded);
     }
 
-    public BufferedImage preprocessImage(BufferedImage image) {
-        if (image == null) return null;
+    public BufferedImage preprocessImage(BufferedImage image) throws ImageProcessingException {
+        if (image == null) {
+            throw new ImageProcessingException("Input image cannot be null.");
+        }
 
         // Convert to grayscale
         BufferedImage grayscale = new BufferedImage(
@@ -35,6 +42,7 @@ public class ImageProcessor {
         Graphics2D g = grayscale.createGraphics();
         g.drawImage(image, 0, 0, null);
         g.dispose();
+
         // Resize image while maintaining aspect ratio
         double aspectRatio = (double) image.getHeight() / image.getWidth();
         int targetHeight = (int) (TARGET_WIDTH * aspectRatio);
@@ -48,8 +56,10 @@ public class ImageProcessor {
         return enhanceImageQuality(resized);
     }
 
-    public BufferedImage applyThresholding(BufferedImage image) {
-        if (image == null) return null;
+    public BufferedImage applyThresholding(BufferedImage image) throws ImageProcessingException {
+        if (image == null) {
+            throw new ImageProcessingException("Input image cannot be null.");
+        }
 
         BufferedImage result = new BufferedImage(
                 image.getWidth(),
@@ -63,21 +73,21 @@ public class ImageProcessor {
                 // Calculate local average
                 int sum = 0;
                 int count = 0;
-                for (int wy = Math.max(0, y - WINDOW_SIZE/2); 
-                     wy < Math.min(image.getHeight(), y + WINDOW_SIZE/2); wy++) {
-                    for (int wx = Math.max(0, x - WINDOW_SIZE/2); 
-                         wx < Math.min(image.getWidth(), x + WINDOW_SIZE/2); wx++) {
+                for (int wy = Math.max(0, y - WINDOW_SIZE / 2);
+                     wy < Math.min(image.getHeight(), y + WINDOW_SIZE / 2); wy++) {
+                    for (int wx = Math.max(0, x - WINDOW_SIZE / 2);
+                         wx < Math.min(image.getWidth(), x + WINDOW_SIZE / 2); wx++) {
                         int pixel = image.getRGB(wx, wy);
                         sum += (pixel >> 16) & 0xff;
                         count++;
                     }
                 }
                 int average = sum / count;
-                
+
                 // Get current pixel brightness
                 int pixel = image.getRGB(x, y);
                 int brightness = (pixel >> 16) & 0xff;
-                
+
                 // Apply local threshold with offset
                 int threshold = Math.max(average - 10, THRESHOLD_VALUE);
                 result.setRGB(x, y, brightness < threshold ? Color.BLACK.getRGB() : Color.WHITE.getRGB());
@@ -86,8 +96,10 @@ public class ImageProcessor {
         return result;
     }
 
-    public BufferedImage enhanceImageQuality(BufferedImage image) {
-        if (image == null) return null;
+    public BufferedImage enhanceImageQuality(BufferedImage image) throws ImageProcessingException {
+        if (image == null) {
+            throw new ImageProcessingException("Input image cannot be null.");
+        }
 
         // Create sharpening kernel
         float[] sharpenKernel = {
