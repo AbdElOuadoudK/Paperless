@@ -1,5 +1,7 @@
 package acquisition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,6 +9,8 @@ import java.awt.RenderingHints;
 import utils.ImageProcessingException; // Import the custom exception
 
 public class ImageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
+
     // Constants for image processing
     private static final int TARGET_WIDTH = 2400;
     private static final int THRESHOLD_VALUE = 210;  // Increased to catch lighter text
@@ -15,23 +19,31 @@ public class ImageProcessor {
 
     public BufferedImage processImage(BufferedImage image) throws ImageProcessingException {
         if (image == null) {
+            logger.error("Input image is null.");
             throw new ImageProcessingException("Input image cannot be null.");
         }
+        logger.info("Starting image processing...");
 
         // Apply preprocessing
         BufferedImage preprocessed = preprocessImage(image);
+        logger.debug("Preprocessing completed.");
 
         // Apply thresholding
         BufferedImage thresholded = applyThresholding(preprocessed);
-        
+        logger.debug("Thresholding completed.");
+
         // Enhance quality
-        return enhanceImageQuality(thresholded);
+        BufferedImage enhanced = enhanceImageQuality(thresholded);
+        logger.info("Image processing completed successfully.");
+        return enhanced;
     }
 
     public BufferedImage preprocessImage(BufferedImage image) throws ImageProcessingException {
         if (image == null) {
+            logger.error("Input image is null during preprocessing.");
             throw new ImageProcessingException("Input image cannot be null.");
         }
+        logger.debug("Preprocessing image...");
 
         // Convert to grayscale
         BufferedImage grayscale = new BufferedImage(
@@ -42,6 +54,7 @@ public class ImageProcessor {
         Graphics2D g = grayscale.createGraphics();
         g.drawImage(image, 0, 0, null);
         g.dispose();
+        logger.debug("Converted image to grayscale.");
 
         // Resize image while maintaining aspect ratio
         double aspectRatio = (double) image.getHeight() / image.getWidth();
@@ -51,15 +64,17 @@ public class ImageProcessor {
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g.drawImage(grayscale, 0, 0, TARGET_WIDTH, targetHeight, null);
         g.dispose();
+        logger.debug("Resized image to {}x{}.", TARGET_WIDTH, targetHeight);
 
-        // Remove blur step and only apply sharpening
-        return enhanceImageQuality(resized);
+        return resized;
     }
 
     public BufferedImage applyThresholding(BufferedImage image) throws ImageProcessingException {
         if (image == null) {
+            logger.error("Input image is null during thresholding.");
             throw new ImageProcessingException("Input image cannot be null.");
         }
+        logger.debug("Applying thresholding...");
 
         BufferedImage result = new BufferedImage(
                 image.getWidth(),
@@ -93,13 +108,16 @@ public class ImageProcessor {
                 result.setRGB(x, y, brightness < threshold ? Color.BLACK.getRGB() : Color.WHITE.getRGB());
             }
         }
+        logger.debug("Thresholding completed.");
         return result;
     }
 
     public BufferedImage enhanceImageQuality(BufferedImage image) throws ImageProcessingException {
         if (image == null) {
+            logger.error("Input image is null during enhancement.");
             throw new ImageProcessingException("Input image cannot be null.");
         }
+        logger.debug("Enhancing image quality...");
 
         // Create sharpening kernel
         float[] sharpenKernel = {
@@ -129,6 +147,7 @@ public class ImageProcessor {
                 sharpened.setRGB(x, y, new Color(newBrightness, newBrightness, newBrightness).getRGB());
             }
         }
+        logger.debug("Image enhancement completed.");
         return sharpened;
     }
 }
