@@ -129,8 +129,14 @@ def medianCanny(img: numpy.ndarray, thresh1: float, thresh2: float) -> numpy.nda
         numpy.ndarray: The image with Canny edge detection applied.
     """
     img_copy = img.copy()
-    median = numpy.median(img_copy)
-    img_copy = cv2.Canny(img_copy, int(thresh1 * median), int(thresh2 * median))
+
+    min_val, max_val = numpy.min(img_copy), numpy.max(img_copy)
+    lower_thresh = min_val + (0.1 * (max_val - min_val))  # 10% above min intensity
+    upper_thresh = min_val + (0.5 * (max_val - min_val))  # 50% above min intensity
+    img_copy = cv2.Canny(img_copy, lower_thresh, upper_thresh)
+    #median = numpy.median(img_copy)
+    #img_copy = cv2.Canny(img_copy, int(thresh1 * median), int(thresh2 * median))
+    
     return img_copy
 
 
