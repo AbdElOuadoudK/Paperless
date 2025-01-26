@@ -1,8 +1,9 @@
-import scipy, numpy, pandas
+import numpy
 from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
 import pytesseract
+from os import path
 
 
 def display(img: numpy.ndarray = None, img_path: str = None) -> None:
@@ -339,6 +340,7 @@ def get_lines(img: numpy.ndarray, padding: int = 3) -> list:
         list: List of bounding boxes representing lines.
     """
     contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
     filtered_contours = [cnt for cnt in contours if (cv2.boundingRect(cnt)[2] / cv2.boundingRect(cnt)[3]) >= 2.0]
 
     if len(filtered_contours) == 0:
@@ -373,7 +375,7 @@ def check_size(l: list, size: int) -> bool:
         bool: True if the box is larger than the size, False otherwise.
     """
     ul = unpack(l[:])
-    return ul[2] * ul[3] > size
+    return ul[2] * ul[3] < size
 
 
 def merge_clusters(boxes: list, labels: list) -> list:
@@ -434,7 +436,7 @@ def scan_img(img: numpy.ndarray, merge_margin: int, max_area: int) -> list:
         list: List of filtered and merged bounding boxes.
     """
     boxes = get_boxes(img)
-    
+
     # Filter out boxes that exceed the maximum area
     filtered = []
     for box in boxes:
@@ -446,7 +448,7 @@ def scan_img(img: numpy.ndarray, merge_margin: int, max_area: int) -> list:
     
     # Merge overlapping boxes
     boxes = iter_boxes(filtered, merge_margin)
-    
+        
     return boxes
 
 
@@ -466,3 +468,18 @@ def retrieve_cropped(img: numpy.ndarray, boxes: list, idx: int) -> numpy.ndarray
     cropped_img = img[temp[0][1]:temp[1][1], temp[0][0]:temp[1][0]]
     
     return cropped_img
+
+def tesscan(img, config=r' --psm 3 --oem 2', lang='eng+fra'):
+    
+    dictionary_ = pytesseract.image_to_boxes(img, config=config, lang=lang, output_type='dict')
+    left = dictionary_['left']
+    bottom = dictionary_['bottom']
+    right = dictionary_['right']
+    top = dictionary_['top']
+    
+    boxes_ = []
+    
+    for l, t, r, b in zip(left, top, right, bottom, strict=False):
+        boxes_.append([[l, img.shape[0]-t], [r, img.shape[0]-b]])
+    
+    return boxes_
