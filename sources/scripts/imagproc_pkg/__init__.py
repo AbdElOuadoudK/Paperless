@@ -1,10 +1,11 @@
 from .utils import *
 from .algorithm import ResumeParser
-from .globals import RESUMES_PATH, LOGS_PATH, resume
+from .globals import RESUMES_PATH, CVS_PATH, LOGS_PATH, resume
 
 __all__ = [
     # Global path constants
     'RESUMES_PATH',       # Resumes directory
+    'CVS_PATH', 
     'LOGS_PATH',          # Main logs directory
     'resume',             # Upload resume from path
     
