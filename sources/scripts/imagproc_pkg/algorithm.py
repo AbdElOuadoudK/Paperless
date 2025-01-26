@@ -30,7 +30,7 @@ class ResumeParser:
     def __main(self):
         pass
 
-    def ScanFrames(self, img: numpy.ndarray, margin: int = 25, max_area: int = 30000, display: bool = True) -> tuple:
+    def ScanFrames(self, img: numpy.ndarray, margin: int = 25, max_area: float = .8, display: bool = True) -> tuple:
         """
         Scans the image and extracts bounding boxes by detecting edges across color channels.
 
@@ -43,14 +43,18 @@ class ResumeParser:
         Returns:
             tuple: The processed image and list of bounding boxes.
         """
+        
+        h, w = img.shape[:2]
+        max_area = h * w * max_area
+        
         blue, green, red = cv2.split(img)
         blue_edges = medianCanny(blue, 0, 1)
         green_edges = medianCanny(green, 0, 1)
         red_edges = medianCanny(red, 0, 1)
         edges = blue_edges | green_edges | red_edges
-
+        
         # Detect boxes in the edges image
-        boxes = scan_img(edges, margin, max_area)
+        boxes = scan_img(edges, margin, round(max_area))
 
         # Display the image with boxes if required
         display_(img, boxes) if display else None
