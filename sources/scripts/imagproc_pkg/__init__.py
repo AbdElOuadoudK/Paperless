@@ -1,12 +1,17 @@
 from .utils import *
 from .algorithm import ResumeParser
-from .globals import RESUMES_PATH, LOGS_PATH, resume
+from .globals import *
+from os import listdir
+import cv2
+import pytesseract
 
 __all__ = [
     # Global path constants
     'RESUMES_PATH',       # Resumes directory
+    'DATA_PATH', 
     'LOGS_PATH',          # Main logs directory
     'resume',             # Upload resume from path
+    'pytesseract',
     
     # Utility functions for image processing
     'display',            # Display an image
@@ -15,6 +20,7 @@ __all__ = [
     'thinning',           # Apply thinning algorithm to an image
     'noise_removal',      # Remove noise from an image
     'medianCanny',        # Apply Canny edge detection with a median filter
+    'tesscan', 
 
     # Visualization and box processing
     'display_',           # Display image with detected bounding boxes
@@ -22,6 +28,7 @@ __all__ = [
     'overlap_2',          # Check if one box overlaps another in two dimensions
     'getAllOverlaps',      # Get all overlapping boxes
     'iter_boxes',         # Iterate through and merge overlapping boxes
+    'cv2',
 
     # Line and box-related functions
     'attach_lines_',      # Attach lines to bounding boxes

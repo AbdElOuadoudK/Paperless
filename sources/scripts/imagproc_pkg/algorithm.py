@@ -1,6 +1,5 @@
 from .utils import *
 import cv2
-from sklearn.cluster import HDBSCAN
 
 
 class ResumeParser:
@@ -30,7 +29,7 @@ class ResumeParser:
     def __main(self):
         pass
 
-    def ScanFrames(self, img: numpy.ndarray, margin: int = 25, max_area: int = 30000, display: bool = True) -> tuple:
+    def ScanFrames(self, img: numpy.ndarray, margin: int = 25, max_area: float = .8, display: bool = True) -> tuple:
         """
         Scans the image and extracts bounding boxes by detecting edges across color channels.
 
@@ -43,24 +42,28 @@ class ResumeParser:
         Returns:
             tuple: The processed image and list of bounding boxes.
         """
+        
+        h, w = img.shape[:2]
+        max_area = h * w * max_area
+        
         blue, green, red = cv2.split(img)
         blue_edges = medianCanny(blue, 0, 1)
         green_edges = medianCanny(green, 0, 1)
         red_edges = medianCanny(red, 0, 1)
         edges = blue_edges | green_edges | red_edges
-
+        
         # Detect boxes in the edges image
-        boxes = scan_img(edges, margin, max_area)
+        boxes = scan_img(edges, margin, round(max_area))
 
         # Display the image with boxes if required
         display_(img, boxes) if display else None
 
         return img, boxes
 
-    def CroppeImage(self, image: numpy.ndarray, boxes: list, index: int, kernel_max_size: int = 19, padding: int = 3, display: bool = True) -> tuple:
+    def CroppeImage(self, image: numpy.ndarray, kernel_max_size: int = 19, padding: int = 1, display: bool = False):
         """
         Crops the image based on bounding boxes, processes the cropped area, and attempts to detect text lines.
-
+    
         Args:
             image (numpy.ndarray): The input image from which to crop.
             boxes (list): List of bounding boxes.
@@ -68,17 +71,16 @@ class ResumeParser:
             kernel_max_size (int): Maximum size of the kernel for line detection. Default is 19.
             padding (int): Padding for bounding boxes. Default is 3.
             display (bool): Option to display the processed image. Default is True.
-
+    
         Returns:
             tuple: Cropped image and detected lines or the result of ClusterBoxes if no lines are detected.
         """
-        cropped_img = retrieve_cropped(image, boxes, index)
-
+    
         # Convert to grayscale, apply Gaussian blur, and binarize the image
-        gray = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (3, 3), 0)
         bw = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-
+        
         all_knl_lines = []
         for k in range(1, kernel_max_size + 1):
             # Create a horizontal kernel and apply the closing operation
@@ -86,30 +88,33 @@ class ResumeParser:
             bw_closed = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
             lines = get_lines(bw_closed, padding=padding)
             all_knl_lines += lines[:] if lines else []
-
+    
         # If no lines are detected, cluster boxes
         if not any(all_knl_lines):
-            print('Second FLAG')
-            return self.ClusterBoxes(cropped_img)
-
+            lines = tesscan(image, config=r' --psm 11 --oem 2', lang='eng+fra')
+            lines = iter_boxes(lines, 0)
+            lines = sorted(lines, key=lambda l: (l[0][1], l[0][0]))
+            print('Second FLAG - 1')
+            #display_(image, lines)
+            return lines, 'PSM11'
+    
         lines = []
         for l in all_knl_lines:
             if l and (l not in lines):
-                if check_size(l[:], 52):
+                if check_size(l[:], image.shape[0] * image.shape[1] * (1/8)):
                     lines.append(l[:])
-
+    
         # If no valid lines are detected, cluster boxes
         if not lines:
-            print('Second FLAG')
-            return self.ClusterBoxes(cropped_img)
-
+            raise Exception("Second FLAG - 2")
+    
         # Sort and display detected lines
         lines = iter_boxes(lines, 0)
         lines = sorted(lines, key=lambda l: (l[0][1], l[0][0]))
         print('First FLAG')
-        display_(cropped_img, lines) if display else None
-
-        return cropped_img, lines
+        
+        #display_(image, lines)
+        return lines, 'PSM7'
 
     def ClusterBoxes(self, cropped_img: numpy.ndarray, display: bool = True) -> tuple:
         """
